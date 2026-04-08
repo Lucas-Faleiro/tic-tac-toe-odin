@@ -1,7 +1,13 @@
 const GameBoard = (function () {
-  const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  let board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-  return { board };
+  const resetBoard = () => {
+    for (let i = 0; i < board.length; i++) {
+      board[i] = i;
+    }
+  };
+
+  return { board, resetBoard };
 })();
 
 const TurnsCounter = (function () {
@@ -14,7 +20,11 @@ const TurnsCounter = (function () {
     return counter;
   };
 
-  return { getCounter, addToCounter };
+  const resetCounter = () => {
+    counter = 0;
+  };
+
+  return { getCounter, addToCounter, resetCounter };
 })();
 
 const GameRules = (function () {
@@ -62,7 +72,8 @@ const GameRules = (function () {
 })();
 
 const GameController = (function () {
-  const { board } = GameBoard;
+  const { board, resetBoard } = GameBoard;
+  const { resetCounter } = TurnsCounter;
   let symbol = "X";
   let victory;
   let isGameOver = false;
@@ -98,17 +109,25 @@ const GameController = (function () {
     return "continue";
   };
 
-  return { fillATile, isGameOver };
+  const gameRestart = () => {
+    resetBoard();
+    resetCounter();
+    symbol = "X";
+    isGameOver = false;
+  };
+
+  return { fillATile, gameRestart };
 })();
 
 const DisplayController = (function () {
   const { board } = GameBoard;
-  const { fillATile } = GameController;
+  const { fillATile, gameRestart } = GameController;
   const gameTable = document.querySelector("#game-table");
   const gameContainer = document.querySelector("#game-container");
 
   const handleTileClick = (element, index) => {
     const sucessfullMove = fillATile(Number(index));
+
     if (sucessfullMove === "continue") {
       element.innerText = board[index];
       console.log(board);
@@ -118,7 +137,7 @@ const DisplayController = (function () {
     } else if (sucessfullMove === "Player 2") {
       element.innerText = board[index];
       displayWinner(false);
-    } else {
+    } else if (sucessfullMove === "Tie") {
       element.innerText = board[index];
       displayWinner("tie");
     }
@@ -126,6 +145,7 @@ const DisplayController = (function () {
 
   const displayWinner = (gameResult) => {
     const winnerText = document.createElement("span");
+    winnerText.setAttribute("id", "winner-text");
     if (gameResult === true) {
       winnerText.innerText = "Player 1 Wins!";
     } else if (gameResult === false) {
@@ -143,6 +163,21 @@ const DisplayController = (function () {
     gameTile.addEventListener("click", () => handleTileClick(gameTile, index));
 
     gameTable.append(gameTile);
+  });
+
+  const restartBtn = document.createElement("button");
+  restartBtn.innerText = "Restart";
+  gameContainer.append(restartBtn);
+  restartBtn.addEventListener("click", () => {
+    gameRestart();
+    const allTiles = document.querySelectorAll(".game-tile");
+    allTiles.forEach((tile) => {
+      tile.innerText = "";
+    });
+    const findWinnerText = document.querySelector("#winner-text");
+    if (findWinnerText) {
+      findWinnerText.innerText = "";
+    }
   });
 })();
 
