@@ -40,7 +40,7 @@ const GameRules = (function () {
     [2, 4, 6],
   ];
 
-  const verifiyVictory = (board, currentTurn) => {
+  const verifyVictory = (board, currentTurn) => {
     for (let i = 0; i < winningCombinations.length; i++) {
       if (winningCombinations[i].every((tile) => board[tile] === "X")) {
         return "X";
@@ -52,7 +52,7 @@ const GameRules = (function () {
       return "tie";
     }
   };
-  return { verifiyVictory };
+  return { verifyVictory };
 })();
 
 const GameController = (function () {
@@ -78,7 +78,7 @@ const GameController = (function () {
     if (symbol === "X") symbol = "O";
     else symbol = "X";
 
-    winner = GameRules.verifiyVictory(board, TurnsCounter.getCounter());
+    winner = GameRules.verifyVictory(board, TurnsCounter.getCounter());
     TurnsCounter.addToCounter();
 
     if (winner === "X" || winner === "O" || winner === "tie") {
