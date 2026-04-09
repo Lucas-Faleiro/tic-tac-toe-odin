@@ -12,6 +12,7 @@ const GameBoard = (function () {
 
 const TurnsCounter = (function () {
   let counter = 0;
+
   const addToCounter = () => {
     counter++;
   };
@@ -28,46 +29,29 @@ const TurnsCounter = (function () {
 })();
 
 const GameRules = (function () {
-  const { board } = GameBoard;
+  const winningCombinations = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
-  const verifiyVictory = () => {
-    if (board[0] === board[1] && board[1] === board[2]) {
-      if (board[0] === "X") return true;
-      else return false;
+  const verifiyVictory = (board, currentTurn) => {
+    for (let i = 0; i < winningCombinations.length; i++) {
+      if (winningCombinations[i].every((tile) => board[tile] === "X")) {
+        return "X";
+      } else if (winningCombinations[i].every((tile) => board[tile] === "O")) {
+        return "O";
+      }
     }
-    if (board[3] === board[4] && board[4] === board[5]) {
-      if (board[3] === "X") return true;
-      else return false;
-    }
-    if (board[6] === board[7] && board[7] === board[8]) {
-      if (board[6] === "X") return true;
-      else return false;
-    }
-    if (board[0] === board[3] && board[3] === board[6]) {
-      if (board[0] === "X") return true;
-      else return false;
-    }
-    if (board[1] === board[4] && board[4] === board[7]) {
-      if (board[1] === "X") return true;
-      else return false;
-    }
-    if (board[2] === board[5] && board[5] === board[8]) {
-      if (board[2] === "X") return true;
-      else return false;
-    }
-    if (board[0] === board[4] && board[4] === board[8]) {
-      if (board[0] === "X") return true;
-      else return false;
-    }
-    if (board[2] === board[4] && board[4] === board[6]) {
-      if (board[2] === "X") return true;
-      else return false;
-    }
-    if (TurnsCounter.getCounter() === 8) {
+    if (currentTurn === 8) {
       return "tie";
     }
   };
-
   return { verifiyVictory };
 })();
 
@@ -75,38 +59,32 @@ const GameController = (function () {
   const { board, resetBoard } = GameBoard;
   const { resetCounter } = TurnsCounter;
   let symbol = "X";
-  let victory;
+  let winner;
   let isGameOver = false;
 
-  const fillATile = (tilePosition) => {
+  const getWinner = () => winner;
+
+  const getIsGameOver = () => isGameOver;
+
+  const fillTile = (tilePosition) => {
     if (isGameOver) return;
 
     if (board[tilePosition] === "X" || board[tilePosition] === "O") {
       console.log("invalid move");
-      return "invalid";
+      return false;
     }
 
     board[tilePosition] = symbol;
     if (symbol === "X") symbol = "O";
     else symbol = "X";
 
-    victory = GameRules.verifiyVictory();
+    winner = GameRules.verifiyVictory(board, TurnsCounter.getCounter());
     TurnsCounter.addToCounter();
 
-    if (victory === true) {
-      console.log("Player 1 Victory");
+    if (winner === "X" || winner === "O" || winner === "tie") {
       isGameOver = true;
-      return "Player 1";
-    } else if (victory === false) {
-      console.log("Player 2 Victory");
-      isGameOver = true;
-      return "Player 2";
-    } else if (victory === "tie") {
-      console.log("That's a tie!");
-      isGameOver = true;
-      return "Tie";
     }
-    return "continue";
+    return true;
   };
 
   const gameRestart = () => {
@@ -114,45 +92,40 @@ const GameController = (function () {
     resetCounter();
     symbol = "X";
     isGameOver = false;
+    winner = null;
   };
 
-  return { fillATile, gameRestart };
+  return { fillTile, gameRestart, getIsGameOver, getWinner };
 })();
 
 const DisplayController = (function () {
   const { board } = GameBoard;
-  const { fillATile, gameRestart } = GameController;
+  const { fillTile, gameRestart, getIsGameOver, getWinner } = GameController;
   const gameTable = document.querySelector("#game-table");
   const gameContainer = document.querySelector("#game-container");
 
   const handleTileClick = (element, index) => {
-    const sucessfullMove = fillATile(Number(index));
+    const isValidMove = fillTile(Number(index));
 
-    if (sucessfullMove === "continue") {
+    if (isValidMove) {
       element.innerText = board[index];
-      console.log(board);
-    } else if (sucessfullMove === "Player 1") {
-      element.innerText = board[index];
-      displayWinner(true);
-    } else if (sucessfullMove === "Player 2") {
-      element.innerText = board[index];
-      displayWinner(false);
-    } else if (sucessfullMove === "Tie") {
-      element.innerText = board[index];
-      displayWinner("tie");
+
+      if (getIsGameOver()) {
+        displayWinner();
+      }
     }
   };
 
-  const displayWinner = (gameResult) => {
+  const displayWinner = () => {
     const winnerText = document.createElement("span");
     winnerText.setAttribute("id", "winner-text");
-    if (gameResult === true) {
-      winnerText.innerText = "Player 1 Wins!";
-    } else if (gameResult === false) {
-      winnerText.innerText = "Player 2 Wins!";
-    } else {
+
+    if (getWinner() === "tie") {
       winnerText.innerText = "Its a tie!";
+    } else {
+      winnerText.innerText = `${getWinner()} Wins!`;
     }
+
     gameContainer.insertBefore(winnerText, gameTable);
   };
 
@@ -170,13 +143,15 @@ const DisplayController = (function () {
   gameContainer.append(restartBtn);
   restartBtn.addEventListener("click", () => {
     gameRestart();
+
     const allTiles = document.querySelectorAll(".game-tile");
     allTiles.forEach((tile) => {
       tile.innerText = "";
     });
+
     const findWinnerText = document.querySelector("#winner-text");
     if (findWinnerText) {
-      findWinnerText.innerText = "";
+      findWinnerText.remove();
     }
   });
 })();
