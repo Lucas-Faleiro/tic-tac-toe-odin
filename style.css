@@ -55,12 +55,16 @@ h3 {
 }
 
 #restart-btn {
-  border: 0;
+  border: 1px solid white;
   padding: 10px 20px;
   border-radius: 8px;
   width: 200px;
   font-family: "roboto";
   cursor: pointer;
-  background-color: #ef271b;
+  background-color: #f38375;
   color: white;
+}
+
+#restart-btn:hover {
+  background-color: #ef271b50;
 }

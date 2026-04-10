@@ -143,7 +143,7 @@ const DisplayController = (function () {
   });
 
   const restartBtn = document.createElement("button");
-  restartBtn.innerText = "Restart";
+  restartBtn.innerText = "↩ Restart";
   restartBtn.setAttribute("id", "restart-btn");
   gameContainer.append(restartBtn);
   restartBtn.addEventListener("click", () => {
