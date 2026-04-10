@@ -66,6 +66,13 @@ const GameController = (function () {
 
   const getIsGameOver = () => isGameOver;
 
+  const getSymbol = () => symbol;
+
+  const changeSymbol = () => {
+    if (symbol === "X") symbol = "O";
+    else symbol = "X";
+  };
+
   const fillTile = (tilePosition) => {
     if (isGameOver) return;
 
@@ -74,9 +81,8 @@ const GameController = (function () {
       return false;
     }
 
-    board[tilePosition] = symbol;
-    if (symbol === "X") symbol = "O";
-    else symbol = "X";
+    board[tilePosition] = getSymbol();
+    changeSymbol();
 
     winner = GameRules.verifyVictory(board, TurnsCounter.getCounter());
     TurnsCounter.addToCounter();
@@ -117,7 +123,7 @@ const DisplayController = (function () {
   };
 
   const displayWinner = () => {
-    const winnerText = document.createElement("span");
+    const winnerText = document.querySelector("#winner-text");
     winnerText.setAttribute("id", "winner-text");
 
     if (getWinner() === "tie") {
@@ -125,8 +131,6 @@ const DisplayController = (function () {
     } else {
       winnerText.innerText = `${getWinner()} Wins!`;
     }
-
-    gameContainer.insertBefore(winnerText, gameTable);
   };
 
   board.forEach((tile, index) => {
@@ -140,6 +144,7 @@ const DisplayController = (function () {
 
   const restartBtn = document.createElement("button");
   restartBtn.innerText = "Restart";
+  restartBtn.setAttribute("id", "restart-btn");
   gameContainer.append(restartBtn);
   restartBtn.addEventListener("click", () => {
     gameRestart();
@@ -151,7 +156,7 @@ const DisplayController = (function () {
 
     const findWinnerText = document.querySelector("#winner-text");
     if (findWinnerText) {
-      findWinnerText.remove();
+      findWinnerText.innerText = "";
     }
   });
 })();
