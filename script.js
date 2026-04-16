@@ -64,11 +64,13 @@ const GameController = (function () {
   let winner;
   let isGameOver = false;
   const gameBoard = GameBoard();
+  let activePlayers;
 
   const getBoard = gameBoard.getBoard();
   const getWinner = () => winner;
   const getIsGameOver = () => isGameOver;
   const getSymbol = () => symbol;
+  const getActivePlayers = activePlayers;
 
   const changeSymbol = () => {
     if (symbol === "X") symbol = "O";
@@ -101,7 +103,12 @@ const GameController = (function () {
     return true;
   };
 
-  const startGame = (playersList) => {};
+  const startGame = (playersList) => {
+    activePlayers = playersList.map((player, index) => {
+      if (index === 0) return Player(player, "X");
+      else return Player(player, "O");
+    });
+  };
 
   const gameRestart = () => {
     gameBoard.resetBoard();
@@ -170,7 +177,7 @@ const DisplayController = (function () {
   };
 
   const grabPlayersNames = () => {
-    const players = document.querySelectorAll(".players");
+    const players = document.querySelectorAll(".playersInput");
     const playersList = Array.from(players).map(({ value }) => value);
     return playersList;
   };
@@ -179,24 +186,26 @@ const DisplayController = (function () {
     const startBtn = document.createElement("button");
     startBtn.setAttribute("id", "start-game-btn");
     startBtn.innerText = "Start";
+
     startBtn.addEventListener("click", () => {
+      const playerNames = grabPlayersNames();
       displayBoard(getBoard);
-      startGame(grabPlayersNames());
+      startGame(playerNames);
+      displayPlayer(playerNames);
     });
     gameContainer.insertBefore(startBtn, winnerText);
   };
   displayStartBtn();
 
-  const displayPlayer = (playerOne, playerTwo) => {
-    const spanPlayerOne = document.createElement("span");
-    spanPlayerOne.innerText = playerOne;
-    spanPlayerOne.setAttribute("class", "players");
-    gameContainer.insertBefore(spanPlayerOne, winnerText);
-
-    const spanPlayerTwo = document.createElement("span");
-    spanPlayerTwo.innerText = playerTwo;
-    spanPlayerTwo.setAttribute("class", "players");
-    gameContainer.insertBefore(spanPlayerTwo, winnerText);
+  const displayPlayer = (players) => {
+    console.log(players);
+    players.forEach((player) => {
+      console.log(player);
+      const spanPlayer = document.createElement("span");
+      spanPlayer.innerText = player;
+      spanPlayer.setAttribute("class", "players");
+      gameContainer.insertBefore(spanPlayer, winnerText);
+    });
   };
 
   const restartBtn = document.createElement("button");
@@ -220,10 +229,12 @@ const DisplayController = (function () {
   return { displayBoard, displayPlayer, grabPlayersNames };
 })();
 
-const Player = (name) => {
+const Player = (name, marker) => {
   const playerName = name;
+  const playerMarker = marker;
 
   const getPlayerName = () => playerName;
+  const getPlayerMarker = () => playerMarker;
 
-  return { getPlayerName };
+  return { getPlayerName, getPlayerMarker };
 };
