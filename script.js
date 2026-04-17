@@ -188,7 +188,13 @@ const DisplayController = (function () {
 
   const grabPlayersNames = () => {
     const players = document.querySelectorAll(".playersInput");
-    const playersList = Array.from(players).map(({ value }) => value);
+    const playersList = Array.from(players).map(({ value }, index) => {
+      if (index === 0) {
+        return value || "Player 1";
+      } else {
+        return value || "Player 2";
+      }
+    });
     return playersList;
   };
 
