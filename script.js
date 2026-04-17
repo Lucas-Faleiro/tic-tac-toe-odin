@@ -65,12 +65,12 @@ const GameController = (function () {
   let isGameOver = false;
   const gameBoard = GameBoard();
   let activePlayers;
-
   const getBoard = gameBoard.getBoard();
+
   const getWinner = () => winner;
   const getIsGameOver = () => isGameOver;
   const getSymbol = () => symbol;
-  const getActivePlayers = activePlayers;
+  const getActivePlayers = () => activePlayers;
 
   const changeSymbol = () => {
     if (symbol === "X") symbol = "O";
@@ -125,6 +125,7 @@ const GameController = (function () {
     getWinner,
     getBoard,
     startGame,
+    getActivePlayers,
   };
 })();
 
