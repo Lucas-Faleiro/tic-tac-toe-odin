@@ -228,22 +228,22 @@ const DisplayController = (function () {
   };
 
   const createRestartBtn = () => {
-  const restartBtn = document.createElement("button");
-  restartBtn.innerText = "↩ Restart";
-  restartBtn.setAttribute("id", "restart-btn");
-  gameContainer.append(restartBtn);
-  restartBtn.addEventListener("click", () => {
-    gameRestart();
+    const restartBtn = document.createElement("button");
+    restartBtn.innerText = "↩ Restart";
+    restartBtn.setAttribute("id", "restart-btn");
+    gameContainer.append(restartBtn);
+    restartBtn.addEventListener("click", () => {
+      gameRestart();
 
-    const allTiles = document.querySelectorAll(".game-tile");
-    allTiles.forEach((tile) => {
-      tile.innerText = "";
-    });
+      const allTiles = document.querySelectorAll(".game-tile");
+      allTiles.forEach((tile) => {
+        tile.innerText = "";
+      });
 
-    const findWinnerText = document.querySelector("#winner-text");
-    if (findWinnerText) {
-      findWinnerText.innerText = "";
-    }
+      const findWinnerText = document.querySelector("#winner-text");
+      if (findWinnerText) {
+        findWinnerText.innerText = "";
+      }
     });
   };
 
