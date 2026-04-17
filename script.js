@@ -141,6 +141,9 @@ const DisplayController = (function () {
   } = GameController;
   const gameContainer = document.querySelector("#game-container");
   const winnerText = document.querySelector("#winner-text");
+  const playersInputContainer = document.querySelector(
+    "#player-input-container",
+  );
 
   const handleTileClick = (element, index) => {
     const isValidMove = fillTile(Number(index));
@@ -168,6 +171,9 @@ const DisplayController = (function () {
   };
 
   const displayBoard = (board) => {
+    const gameTable = document.createElement("div");
+    gameTable.setAttribute("id", "game-table");
+    gameContainer.append(gameTable);
     board.forEach((tile, index) => {
       const gameTile = document.createElement("div");
       gameTile.setAttribute("class", "game-tile");
@@ -189,13 +195,16 @@ const DisplayController = (function () {
   const displayStartBtn = () => {
     const startBtn = document.createElement("button");
     startBtn.setAttribute("id", "start-game-btn");
-    startBtn.innerText = "Start";
+    startBtn.innerText = "START GAME";
 
     startBtn.addEventListener("click", () => {
       const playerNames = grabPlayersNames();
       displayBoard(getBoard);
       startGame(playerNames);
       displayPlayer(playerNames);
+      createRestartBtn();
+      startBtn.remove();
+      playersInputContainer.remove();
     });
     gameContainer.insertBefore(startBtn, winnerText);
   };
@@ -212,6 +221,7 @@ const DisplayController = (function () {
     });
   };
 
+  const createRestartBtn = () => {
   const restartBtn = document.createElement("button");
   restartBtn.innerText = "↩ Restart";
   restartBtn.setAttribute("id", "restart-btn");
@@ -228,7 +238,8 @@ const DisplayController = (function () {
     if (findWinnerText) {
       findWinnerText.innerText = "";
     }
-  });
+    });
+  };
 
   return { displayBoard, displayPlayer, grabPlayersNames };
 })();
