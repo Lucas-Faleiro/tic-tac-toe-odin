@@ -97,9 +97,16 @@ const GameController = (function () {
     );
     TurnsCounter.addToCounter();
 
-    if (winner === "X" || winner === "O" || winner === "tie") {
+    if (winner === "X" || winner === "O") {
+      const winnerPlayer = getActivePlayers().find(
+        (player) => player.getPlayerMarker() === getWinner(),
+      );
+      winnerPlayer.incrementScore();
+      isGameOver = true;
+    } else if (winner === "tie") {
       isGameOver = true;
     }
+
     return true;
   };
 
@@ -144,14 +151,19 @@ const DisplayController = (function () {
   const playersInputContainer = document.querySelector(
     "#player-input-container",
   );
+  const playersInfoContainer = document.querySelector(
+    "#players-info-container",
+  );
 
   const handleTileClick = (element, index) => {
     const isValidMove = fillTile(Number(index));
 
     if (isValidMove) {
       element.innerText = getBoard[index];
+      element.classList.add(`game-tile-${getBoard[index]}`);
 
       if (getIsGameOver()) {
+        updateScore();
         displayWinner();
       }
     }
@@ -173,7 +185,7 @@ const DisplayController = (function () {
   const displayBoard = (board) => {
     const gameTable = document.createElement("div");
     gameTable.setAttribute("id", "game-table");
-    gameContainer.append(gameTable);
+    gameContainer.insertBefore(gameTable, playersInfoContainer);
     board.forEach((tile, index) => {
       const gameTile = document.createElement("div");
       gameTile.setAttribute("class", "game-tile");
@@ -186,7 +198,7 @@ const DisplayController = (function () {
     });
   };
 
-  const grabPlayersNames = () => {
+  const getPlayersNames = () => {
     const players = document.querySelectorAll(".playersInput");
     const playersList = Array.from(players).map(({ value }, index) => {
       if (index === 0) {
@@ -204,10 +216,10 @@ const DisplayController = (function () {
     startBtn.innerText = "START GAME";
 
     startBtn.addEventListener("click", () => {
-      const playerNames = grabPlayersNames();
+      const playerNames = getPlayersNames();
       displayBoard(getBoard);
       startGame(playerNames);
-      displayPlayer(playerNames);
+      displayPlayerInfo();
       createRestartBtn();
       startBtn.remove();
       playersInputContainer.remove();
@@ -216,46 +228,75 @@ const DisplayController = (function () {
   };
   displayStartBtn();
 
-  const displayPlayer = (players) => {
-    console.log(players);
-    players.forEach((player) => {
-      console.log(player);
-      const spanPlayer = document.createElement("span");
-      spanPlayer.innerText = player;
-      spanPlayer.setAttribute("class", "players");
-      gameContainer.insertBefore(spanPlayer, winnerText);
-    });
-  };
-
   const createRestartBtn = () => {
     const restartBtn = document.createElement("button");
     restartBtn.innerText = "↩ Restart";
     restartBtn.setAttribute("id", "restart-btn");
-    gameContainer.append(restartBtn);
+    gameContainer.insertBefore(restartBtn, playersInfoContainer);
     restartBtn.addEventListener("click", () => {
       gameRestart();
-
-      const allTiles = document.querySelectorAll(".game-tile");
-      allTiles.forEach((tile) => {
-        tile.innerText = "";
-      });
-
-      const findWinnerText = document.querySelector("#winner-text");
-      if (findWinnerText) {
-        findWinnerText.innerText = "";
-      }
+      resetBoard();
+      resetWinner();
     });
   };
 
-  return { displayBoard, displayPlayer, grabPlayersNames };
+  const resetBoard = () => {
+    const allTiles = document.querySelectorAll(".game-tile");
+    allTiles.forEach((tile) => {
+      tile.innerText = "";
+      tile.classList.remove("game-tile-X", "game-tile-O");
+    });
+  };
+
+  const resetWinner = () => {
+    const findWinnerText = document.querySelector("#winner-text");
+    if (findWinnerText) {
+      findWinnerText.innerText = "";
+    }
+  };
+
+  const displayPlayerInfo = () => {
+    const activePlayers = getActivePlayers();
+
+    activePlayers.forEach((player, index) => {
+      const playerInfoDiv = document.createElement("div");
+      playerInfoDiv.setAttribute("class", "player-info");
+      playerInfoDiv.setAttribute("id", `player-info${index + 1}`);
+      playersInfoContainer.append(playerInfoDiv);
+
+      const spanPlayer = document.createElement("span");
+      spanPlayer.innerText = player.getPlayerName();
+      spanPlayer.setAttribute("class", "players");
+      playerInfoDiv.append(spanPlayer);
+
+      const scoreSpan = document.createElement("span");
+      scoreSpan.innerText = `${player.getScore()}`;
+      scoreSpan.setAttribute("class", "score-text");
+      playerInfoDiv.append(scoreSpan);
+    });
+  };
+
+  const updateScore = () => {
+    const activePlayers = getActivePlayers();
+    const listScore = document.querySelectorAll(".score-text");
+    for (let i = 0; i < activePlayers.length; i++) {
+      listScore[i].innerText = `${activePlayers[i].getScore()}`;
+    }
+  };
+
+  return { displayBoard, grabPlayersNames: getPlayersNames };
 })();
 
 const Player = (name, marker) => {
   const playerName = name;
   const playerMarker = marker;
+  let score = 0;
 
   const getPlayerName = () => playerName;
   const getPlayerMarker = () => playerMarker;
+  const getScore = () => score;
 
-  return { getPlayerName, getPlayerMarker };
+  const incrementScore = () => (score += 1);
+
+  return { getPlayerName, getPlayerMarker, getScore, incrementScore };
 };
