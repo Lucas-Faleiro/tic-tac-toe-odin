@@ -137,8 +137,8 @@ const DisplayController = (function () {
     getWinner,
     getBoard,
     startGame,
+    getActivePlayers,
   } = GameController;
-  const gameTable = document.querySelector("#game-table");
   const gameContainer = document.querySelector("#game-container");
   const winnerText = document.querySelector("#winner-text");
 
@@ -160,7 +160,10 @@ const DisplayController = (function () {
     if (getWinner() === "tie") {
       winnerText.innerText = "Its a tie!";
     } else {
-      winnerText.innerText = `${getWinner()} Wins!`;
+      const winnerName = getActivePlayers().find(
+        (player) => player.getPlayerMarker() === getWinner(),
+      );
+      winnerText.innerText = `${winnerName.getPlayerName()} Wins!`;
     }
   };
 
