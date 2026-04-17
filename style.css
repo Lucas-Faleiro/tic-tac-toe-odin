@@ -47,11 +47,11 @@ h3 {
 }
 
 .game-tile-X {
-  color: #06d6a0;
+  color: #f26430 !important;
 }
 
 .game-tile-O {
-  color: #f26430;
+  color: #06d6a0 !important;
 }
 
 #winner-text {
@@ -82,10 +82,6 @@ button:hover {
   font-size: 18px;
 }
 
-.players {
-  color: white;
-}
-
 #player-input-container {
   display: flex;
   gap: 10px;
@@ -112,6 +108,7 @@ input {
   gap: 10px;
   padding: 20px 100px;
   border-radius: 8px;
+  opacity: 0.4;
 }
 
 .score-text {
@@ -136,4 +133,9 @@ input {
 
 #player-info2 {
   background-color: #06d6a0;
+}
+
+.active-turn {
+  border: 4px white solid;
+  opacity: 1;
 }

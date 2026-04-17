@@ -78,7 +78,7 @@ const GameController = (function () {
   };
 
   const fillTile = (tilePosition) => {
-    if (isGameOver) return;
+    if (isGameOver) return false;
 
     if (
       gameBoard.getBoard()[tilePosition] === "X" ||
@@ -158,27 +158,33 @@ const DisplayController = (function () {
   const handleTileClick = (element, index) => {
     const isValidMove = fillTile(Number(index));
 
-    if (isValidMove) {
+    if (isValidMove === true) {
       element.innerText = getBoard[index];
       element.classList.add(`game-tile-${getBoard[index]}`);
+      updateTurn();
 
       if (getIsGameOver()) {
-        updateScore();
+        if (getWinner() !== "tie") {
+          updateScore();
+        }
         displayWinner();
       }
     }
   };
 
   const displayWinner = () => {
-    winnerText.setAttribute("id", "winner-text");
-
     if (getWinner() === "tie") {
       winnerText.innerText = "Its a tie!";
     } else {
-      const winnerName = getActivePlayers().find(
+      const winnerPlayer = getActivePlayers().find(
         (player) => player.getPlayerMarker() === getWinner(),
       );
-      winnerText.innerText = `${winnerName.getPlayerName()} Wins!`;
+      winnerText.innerText = `${winnerPlayer.getPlayerName()} Wins!`;
+      if (winnerPlayer.getPlayerMarker() === "X") {
+        winnerText.setAttribute("class", "game-tile-X");
+      } else if (winnerPlayer.getPlayerMarker() === "O") {
+        winnerText.setAttribute("class", "game-tile-O");
+      }
     }
   };
 
@@ -201,10 +207,11 @@ const DisplayController = (function () {
   const getPlayersNames = () => {
     const players = document.querySelectorAll(".playersInput");
     const playersList = Array.from(players).map(({ value }, index) => {
+      const cleanName = value.trim();
       if (index === 0) {
-        return value || "Player 1";
+        return cleanName || "Player 1";
       } else {
-        return value || "Player 2";
+        return cleanName || "Player 2";
       }
     });
     return playersList;
@@ -237,6 +244,7 @@ const DisplayController = (function () {
       gameRestart();
       resetBoard();
       resetWinner();
+      updateTurn();
     });
   };
 
@@ -252,6 +260,7 @@ const DisplayController = (function () {
     const findWinnerText = document.querySelector("#winner-text");
     if (findWinnerText) {
       findWinnerText.innerText = "";
+      findWinnerText.removeAttribute("class");
     }
   };
 
@@ -262,6 +271,7 @@ const DisplayController = (function () {
       const playerInfoDiv = document.createElement("div");
       playerInfoDiv.setAttribute("class", "player-info");
       playerInfoDiv.setAttribute("id", `player-info${index + 1}`);
+      if (index === 0) playerInfoDiv.classList.add("active-turn");
       playersInfoContainer.append(playerInfoDiv);
 
       const spanPlayer = document.createElement("span");
@@ -281,6 +291,30 @@ const DisplayController = (function () {
     const listScore = document.querySelectorAll(".score-text");
     for (let i = 0; i < activePlayers.length; i++) {
       listScore[i].innerText = `${activePlayers[i].getScore()}`;
+    }
+  };
+
+  const updateTurn = () => {
+    const firstPlayerInfo = document.querySelector("#player-info1");
+    const secondPlayerInfo = document.querySelector("#player-info2");
+    if (TurnsCounter.getCounter() === 0) {
+      secondPlayerInfo.classList.remove("active-turn");
+      firstPlayerInfo.classList.add("active-turn");
+      return;
+    }
+
+    if (getIsGameOver()) {
+      firstPlayerInfo.classList.remove("active-turn");
+      secondPlayerInfo.classList.remove("active-turn");
+      return;
+    }
+
+    if (firstPlayerInfo.classList.contains("active-turn")) {
+      firstPlayerInfo.classList.remove("active-turn");
+      secondPlayerInfo.classList.add("active-turn");
+    } else {
+      secondPlayerInfo.classList.remove("active-turn");
+      firstPlayerInfo.classList.add("active-turn");
     }
   };
 
