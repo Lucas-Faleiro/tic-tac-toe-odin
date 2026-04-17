@@ -54,7 +54,7 @@ h3 {
   height: 30px;
 }
 
-#restart-btn {
+button {
   border: 1px solid white;
   padding: 10px 20px;
   border-radius: 8px;
@@ -65,10 +65,29 @@ h3 {
   color: white;
 }
 
-#restart-btn:hover {
+button:hover {
   background-color: #22223b;
+}
+
+#start-game-btn {
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .players {
   color: white;
+}
+
+#player-input-container {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  border-radius: 6px;
+  outline: none;
+  border: 0;
+  padding: 4px;
+  width: 120px;
+  font-family: roboto;
 }
